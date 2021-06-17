@@ -16,6 +16,21 @@ type FakeECR struct {
 	Repositories map[string]*types.Repository
 }
 
+func (f *FakeECR) GetLifecyclePolicy(ctx context.Context, params *ecr.GetLifecyclePolicyInput, optFns ...func(*ecr.Options)) (*ecr.GetLifecyclePolicyOutput, error) {
+	return nil, &types.LifecyclePolicyNotFoundException{}
+}
+
+func (f *FakeECR) PutLifecyclePolicy(ctx context.Context, params *ecr.PutLifecyclePolicyInput, optFns ...func(*ecr.Options)) (*ecr.PutLifecyclePolicyOutput, error) {
+	repo := f.createRepo(*params.RepositoryName)
+	text := "default"
+	return &ecr.PutLifecyclePolicyOutput{
+		LifecyclePolicyText: &text,
+		RegistryId:          repo.RegistryId,
+		RepositoryName:      repo.RepositoryName,
+		ResultMetadata:      middleware.Metadata{},
+	}, nil
+}
+
 func (f *FakeECR) DescribeRepositories(ctx context.Context, input *ecr.DescribeRepositoriesInput, opts ...func(*ecr.Options)) (*ecr.DescribeRepositoriesOutput, error) {
 	var repos []types.Repository
 	{
@@ -43,8 +58,17 @@ func (f *FakeECR) CreateRepository(ctx context.Context, params *ecr.CreateReposi
 		return nil, errors.Errorf("name %s already exists", name)
 	}
 
-	now := time.Now()
+	repo := f.createRepo(name)
+	f.Repositories[name] = repo
 
+	return &ecr.CreateRepositoryOutput{
+		Repository:     repo,
+		ResultMetadata: middleware.Metadata{},
+	}, nil
+}
+
+func (f *FakeECR) createRepo(name string) *types.Repository {
+	now := time.Now()
 	if f.Region == "" {
 		f.Region = "us-east-1"
 	}
@@ -58,12 +82,7 @@ func (f *FakeECR) CreateRepository(ctx context.Context, params *ecr.CreateReposi
 		RepositoryName: &name,
 		RepositoryUri:  &uri,
 	}
-	f.Repositories[name] = repo
-
-	return &ecr.CreateRepositoryOutput{
-		Repository:     repo,
-		ResultMetadata: middleware.Metadata{},
-	}, nil
+	return repo
 }
 
 // NewFakeECR creates a new fake ECR

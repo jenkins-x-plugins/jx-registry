@@ -26,7 +26,9 @@ var (
 	info = termcolor.ColorInfo
 
 	cmdLong = templates.LongDesc(`
-		Lazy create a container registry for ECR
+		Lazy create a container registry for ECR as well as putting a lifecycle policy in place. The default policy
+	    will make images with a tag prefix of 0.0.0- expire after 14 days. This prefix is the default for pull request builds.
+        If a policy exist and the default policy isn't overridden (see --ecr-lifecycle-policy) no policy will be put.
 `)
 
 	cmdExample = templates.Examples(`
