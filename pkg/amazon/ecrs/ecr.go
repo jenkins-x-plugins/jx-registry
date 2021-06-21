@@ -17,18 +17,45 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	defaultECRLifecyclePolicy = `
+{
+    "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Expire images older than 14 days",
+            "selection": {
+                "tagStatus": "tagged",
+                "countType": "sinceImagePushed",
+                "tagPrefixList": ["0.0.0-"],
+                "countUnit": "days",
+                "countNumber": 14
+            },
+            "action": {
+                "type": "expire"
+            }
+        }
+    ]
+}
+`
+)
+
 type ECRClient interface {
 	DescribeRepositories(context.Context, *ecr.DescribeRepositoriesInput, ...func(*ecr.Options)) (*ecr.DescribeRepositoriesOutput, error)
 	CreateRepository(ctx context.Context, params *ecr.CreateRepositoryInput, optFns ...func(*ecr.Options)) (*ecr.CreateRepositoryOutput, error)
+	GetLifecyclePolicy(ctx context.Context, params *ecr.GetLifecyclePolicyInput, optFns ...func(*ecr.Options)) (*ecr.GetLifecyclePolicyOutput, error)
+	PutLifecyclePolicy(ctx context.Context, params *ecr.PutLifecyclePolicyInput, optFns ...func(*ecr.Options)) (*ecr.PutLifecyclePolicyOutput, error)
 }
 
 type Options struct {
 	amazon.Options
-	RegistryID           string `env:"REGISTRY_ID"`
-	Registry             string `env:"DOCKER_REGISTRY"`
-	RegistryOrganisation string `env:"DOCKER_REGISTRY_ORG"`
-	AppName              string `env:"APP_NAME"`
-	ECRClient            ECRClient
+	RegistryID               string `env:"REGISTRY_ID"`
+	Registry                 string `env:"DOCKER_REGISTRY"`
+	RegistryOrganisation     string `env:"DOCKER_REGISTRY_ORG"`
+	AppName                  string `env:"APP_NAME"`
+	ECRLifecyclePolicy       string `env:"ECR_LIFECYCLE_POLICY"`
+	CreateECRLifeCyclePolicy bool   `env:"CREATE_ECR_LIFECYCLE_POLICY,default=true"`
+	ECRClient                ECRClient
 }
 
 func (o *Options) AddFlags(cmd *cobra.Command) {
@@ -38,6 +65,8 @@ func (o *Options) AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&o.Registry, "registry", "r", o.Registry, "The registry to use. Defaults to $DOCKER_REGISTRY")
 	cmd.Flags().StringVarP(&o.RegistryOrganisation, "organisation", "o", o.RegistryOrganisation, "The registry organisation to use. Defaults to $DOCKER_REGISTRY_ORG")
 	cmd.Flags().StringVarP(&o.AppName, "app", "a", o.AppName, "The app name to use. Defaults to $APP_NAME")
+	cmd.Flags().StringVarP(&o.ECRLifecyclePolicy, "ecr-lifecycle-policy", "", o.ECRLifecyclePolicy, "ECR lifecycle policies to apply to the repository. Can be specified in $ECR_LIFECYCLE_POLICY.")
+	cmd.Flags().BoolVarP(&o.CreateECRLifeCyclePolicy, "create-ecr-lifecycle-policy", "", o.CreateECRLifeCyclePolicy, "Should ECR Lifecycle Policy be created. Can be specified in $CREATE_ECR_LIFECYCLE_POLICY.")
 }
 
 func (o *Options) Validate() error {
@@ -121,7 +150,7 @@ func (o *Options) LazyCreateRegistry(appName string) error {
 			name := *repo.RepositoryName
 			log.Logger().Infof("Found repository: %s", name)
 			if name == repoName {
-				return nil
+				return o.EnsureLifecyclePolicy(repoName)
 			}
 		}
 	}
@@ -138,6 +167,54 @@ func (o *Options) LazyCreateRegistry(appName string) error {
 		if u != nil {
 			log.Logger().Infof("Created ECR repository: %s", termcolor.ColorInfo(*u))
 		}
+	}
+	return o.EnsureLifecyclePolicy(repoName)
+}
+
+func (o *Options) EnsureLifecyclePolicy(repoName string) error {
+	if o.CreateECRLifeCyclePolicy {
+		client := o.ECRClient
+		ctx := o.GetContext()
+
+		getLifecyclePolicyInput := &ecr.GetLifecyclePolicyInput{
+			RepositoryName: aws.String(repoName),
+		}
+		if o.RegistryID != "" {
+			getLifecyclePolicyInput.RegistryId = &o.RegistryID
+		}
+		getLifecyclePolicyOutput, err := client.GetLifecyclePolicy(ctx, getLifecyclePolicyInput)
+		if err == nil && o.ECRLifecyclePolicy == "" {
+			// Won't overwrite existing lifecycle policy if no policy has been specified
+			return nil
+		}
+		if err != nil {
+			var notFoundErr *types.LifecyclePolicyNotFoundException
+			if !errors.As(err, &notFoundErr) {
+				// LifecyclePolicyNotFoundException is OK since we then create it below
+				return fmt.Errorf("Failed to fetch lifecycle policy for the ECR repository %s due to: %s",
+					repoName, err)
+			}
+		}
+		if o.ECRLifecyclePolicy == "" {
+			o.ECRLifecyclePolicy = defaultECRLifecyclePolicy
+		}
+		if err == nil && o.ECRLifecyclePolicy == *getLifecyclePolicyOutput.LifecyclePolicyText {
+			// No need to put policy if it already set. I'm not sure
+			return nil
+		}
+		putLifecyclePolicyInput := &ecr.PutLifecyclePolicyInput{
+			LifecyclePolicyText: aws.String(o.ECRLifecyclePolicy),
+			RepositoryName:      aws.String(repoName),
+		}
+		if o.RegistryID != "" {
+			putLifecyclePolicyInput.RegistryId = &o.RegistryID
+		}
+		putLifecyclePolicyOutput, err := client.PutLifecyclePolicy(ctx, putLifecyclePolicyInput)
+		if err != nil {
+			return fmt.Errorf("Failed to put lifecycle policy '%s' for the ECR repository %s due to: %s",
+				o.ECRLifecyclePolicy, repoName, err)
+		}
+		log.Logger().Infof("Put ECR repository lifecycle policy: %s", termcolor.ColorInfo(*putLifecyclePolicyOutput))
 	}
 	return nil
 }
