@@ -214,7 +214,7 @@ func (o *Options) EnsureLifecyclePolicy(repoName string) error {
 			return fmt.Errorf("Failed to put lifecycle policy '%s' for the ECR repository %s due to: %s",
 				o.ECRLifecyclePolicy, repoName, err)
 		}
-		log.Logger().Infof("Put ECR repository lifecycle policy: %s", termcolor.ColorInfo(*putLifecyclePolicyOutput))
+		log.Logger().Infof("Put ECR repository lifecycle policy: %s", termcolor.ColorInfo(*(*putLifecyclePolicyOutput).LifecyclePolicyText))
 	}
 	return nil
 }
