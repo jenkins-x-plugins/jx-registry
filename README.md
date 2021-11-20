@@ -108,6 +108,39 @@ If you don't want any policy to be put on the repository you rewrite the step to
           resources: {}
 ```
 
+## Providing an ECR Repository Policy (for multiaccount cluster)
+```json
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Sid": "CrossAccountPull",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::XXXXXXXXXXXX:role/ec2_eks_worknode",
+        ]
+      },
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ]
+    }
+  ]
+}
+```
+If you want any policy to be put on the repository you rewrite the step to:
+
+```yaml
+        - name: check-registry
+          env:
+          - name: CREATE_ECR_REPOSITORY_POLICY
+            value: "true"
+          resources: {}
+```
+
+
 ## Commands
 
 See the [jx-registry command reference](https://github.com/jenkins-x-plugins/jx-registry/blob/master/docs/cmd/jx-registry.md#jx-registry)
