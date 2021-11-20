@@ -67,7 +67,7 @@ type Options struct {
 	ECRLifecyclePolicy       string `env:"ECR_LIFECYCLE_POLICY"`
 	ECRRepositoryPolicy      string `env:"ECR_REPOSITORY_POLICY"`
 	CreateECRLifeCyclePolicy bool   `env:"CREATE_ECR_LIFECYCLE_POLICY,default=true"`
-	CreateECRRepositoryPolicy bool   `env:"CREATE_ECR_REPOSITORY_POLICY,default=false"`
+	CreateECRRepositoryPolicy bool  `env:"CREATE_ECR_REPOSITORY_POLICY,default=false"`
 	ECRClient                ECRClient
 }
 
@@ -238,7 +238,6 @@ func (o *Options) EnsureRepositoryPolicy(repoName string) error {
 	if o.CreateECRRepositoryPolicy {
 		client := o.ECRClient
 		ctx := o.GetContext()
-
 		getRepositoryPolicyInput := &ecr.GetRepositoryPolicyInput{
 			RepositoryName: aws.String(repoName),
 		}
