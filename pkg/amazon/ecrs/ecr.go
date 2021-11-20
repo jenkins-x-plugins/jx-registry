@@ -247,13 +247,12 @@ func (o *Options) EnsureRepositoryPolicy(repoName string) error {
 		}
 		getRepositoryPolicyOutput, err := client.GetRepositoryPolicy(ctx, getRepositoryPolicyInput)
 		if err == nil && o.ECRRepositoryPolicy == "" {
-			// Won't overwrite existing lifecycle policy if no policy has been specified
+			// Won't overwrite existing Repository policy if no policy has been specified
 			return nil
 		}
 		if err != nil {
-			var notFoundErr *types.LifecyclePolicyNotFoundException
+			var notFoundErr *types.RepositoryPolicyNotFoundException
 			if !errors.As(err, &notFoundErr) {
-				// LifecyclePolicyNotFoundException is OK since we then create it below
 				return fmt.Errorf("Failed to fetch lifecycle policy for the ECR repository %s due to: %s",
 					repoName, err)
 			}
