@@ -231,7 +231,7 @@ func (o *Options) EnsureLifecyclePolicy(repoName string) error {
 		}
 		log.Logger().Infof("Put ECR repository lifecycle policy: %s", termcolor.ColorInfo(*(*putLifecyclePolicyOutput).LifecyclePolicyText))
 	}
-	return nil
+	return o.EnsureRepositoryPolicy(repoName)
 }
 
 func (o *Options) EnsureRepositoryPolicy(repoName string) error {
