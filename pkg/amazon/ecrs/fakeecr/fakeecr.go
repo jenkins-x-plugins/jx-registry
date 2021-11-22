@@ -35,7 +35,7 @@ func (f *FakeECR) GetRepositoryPolicy(ctx context.Context, params *ecr.GetReposi
 	return nil, &types.RepositoryPolicyNotFoundException{}
 }
 
-func (f *FakeECR) SetRepositoryPolicy(ctx context.Context, params *ecr.SetRepositoryPolicyInput, optFns ...func(*ecr.Options)) (*ecr.SetRepositoryPolicyPolicyOutput, error) {
+func (f *FakeECR) SetRepositoryPolicy(ctx context.Context, params *ecr.SetRepositoryPolicyInput, optFns ...func(*ecr.Options)) (*ecr.SetRepositoryPolicyOutput, error) {
 	repo := f.createRepo(*params.RepositoryName)
 	text := "default"
 	return &ecr.SetRepositoryPolicyOutput{
