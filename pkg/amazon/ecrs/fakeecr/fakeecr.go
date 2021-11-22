@@ -39,10 +39,10 @@ func (f *FakeECR) SetRepositoryPolicy(ctx context.Context, params *ecr.SetReposi
 	repo := f.createRepo(*params.RepositoryName)
 	text := "default"
 	return &ecr.SetRepositoryPolicyOutput{
-		PolicyText: &text,
-		RegistryId:          repo.RegistryId,
-		RepositoryName:      repo.RepositoryName,
-		ResultMetadata:      middleware.Metadata{},
+		PolicyText:     &text,
+		RegistryId:     repo.RegistryId,
+		RepositoryName: repo.RepositoryName,
+		ResultMetadata: middleware.Metadata{},
 	}, nil
 }
 
