@@ -235,47 +235,48 @@ func (o *Options) EnsureLifecyclePolicy(repoName string) error {
 }
 
 func (o *Options) EnsureRepositoryPolicy(repoName string) error {
-	if o.CreateECRRepositoryPolicy {
-		client := o.ECRClient
-		ctx := o.GetContext()
-		getRepositoryPolicyInput := &ecr.GetRepositoryPolicyInput{
-			RepositoryName: aws.String(repoName),
-		}
-		if o.RegistryID != "" {
-			getRepositoryPolicyInput.RegistryId = &o.RegistryID
-		}
-		getRepositoryPolicyOutput, err := client.GetRepositoryPolicy(ctx, getRepositoryPolicyInput)
-		if err == nil && o.ECRRepositoryPolicy == "" {
-			// Won't overwrite existing Repository policy if no policy has been specified
-			return nil
-		}
-		if err != nil {
-			var notFoundErr *types.RepositoryPolicyNotFoundException
-			if !errors.As(err, &notFoundErr) {
-				return fmt.Errorf("Failed to fetch lifecycle policy for the ECR repository %s due to: %s",
-					repoName, err)
-			}
-		}
-		if o.ECRRepositoryPolicy == "" {
-			o.ECRRepositoryPolicy = defaultECRRepositoryPolicy
-		}
-		if err == nil && o.ECRRepositoryPolicy == *getRepositoryPolicyOutput.PolicyText {
-			// No need to put policy if it already set. I'm not sure
-			return nil
-		}
-		setRepositoryPolicyInput := &ecr.SetRepositoryPolicyInput{
-			PolicyText:     aws.String(o.ECRRepositoryPolicy),
-			RepositoryName: aws.String(repoName),
-		}
-		if o.RegistryID != "" {
-			setRepositoryPolicyInput.RegistryId = &o.RegistryID
-		}
-		setRegistryPolicyOutput, err := client.SetRepositoryPolicy(ctx, setRepositoryPolicyInput)
-		if err != nil {
-			return fmt.Errorf("Failed to set repository policy '%s' for the ECR repository %s due to: %s",
-				o.ECRRepositoryPolicy, repoName, err)
-		}
-		log.Logger().Infof("Put ECR repository repository policy: %s", termcolor.ColorInfo(*(*setRegistryPolicyOutput).PolicyText))
+	if !o.CreateECRRepositoryPolicy {
+		return nil 
 	}
+	client := o.ECRClient
+	ctx := o.GetContext()
+	getRepositoryPolicyInput := &ecr.GetRepositoryPolicyInput{
+		RepositoryName: aws.String(repoName),
+	}
+	if o.RegistryID != "" {
+		getRepositoryPolicyInput.RegistryId = &o.RegistryID
+	}
+	getRepositoryPolicyOutput, err := client.GetRepositoryPolicy(ctx, getRepositoryPolicyInput)
+	if err == nil && o.ECRRepositoryPolicy == "" {
+		// Won't overwrite existing Repository policy if no policy has been specified
+		return nil
+	}
+	if err != nil {
+		var notFoundErr *types.RepositoryPolicyNotFoundException
+		if !errors.As(err, &notFoundErr) {
+			return fmt.Errorf("Failed to fetch lifecycle policy for the ECR repository %s due to: %s",
+				repoName, err)
+		}
+	}
+	if o.ECRRepositoryPolicy == "" {
+		o.ECRRepositoryPolicy = defaultECRRepositoryPolicy
+	}
+	if err == nil && o.ECRRepositoryPolicy == *getRepositoryPolicyOutput.PolicyText {
+		// No need to put policy if it already set. I'm not sure
+		return nil
+	}
+	setRepositoryPolicyInput := &ecr.SetRepositoryPolicyInput{
+		PolicyText:     aws.String(o.ECRRepositoryPolicy),
+		RepositoryName: aws.String(repoName),
+	}
+	if o.RegistryID != "" {
+		setRepositoryPolicyInput.RegistryId = &o.RegistryID
+	}
+	setRegistryPolicyOutput, err := client.SetRepositoryPolicy(ctx, setRepositoryPolicyInput)
+	if err != nil {
+		return fmt.Errorf("Failed to set repository policy '%s' for the ECR repository %s due to: %s",
+			o.ECRRepositoryPolicy, repoName, err)
+	}
+	log.Logger().Infof("Put ECR repository repository policy: %s", termcolor.ColorInfo(*(*setRegistryPolicyOutput).PolicyText))
 	return nil
 }
