@@ -31,6 +31,21 @@ func (f *FakeECR) PutLifecyclePolicy(ctx context.Context, params *ecr.PutLifecyc
 	}, nil
 }
 
+func (f *FakeECR) GetRepositoryPolicy(ctx context.Context, params *ecr.GetRepositoryPolicyInput, optFns ...func(*ecr.Options)) (*ecr.GetRepositoryPolicyOutput, error) {
+	return nil, &types.RepositoryPolicyNotFoundException{}
+}
+
+func (f *FakeECR) SetRepositoryPolicy(ctx context.Context, params *ecr.SetRepositoryPolicyInput, optFns ...func(*ecr.Options)) (*ecr.SetRepositoryPolicyOutput, error) {
+	repo := f.createRepo(*params.RepositoryName)
+	text := "default"
+	return &ecr.SetRepositoryPolicyOutput{
+		PolicyText:     &text,
+		RegistryId:     repo.RegistryId,
+		RepositoryName: repo.RepositoryName,
+		ResultMetadata: middleware.Metadata{},
+	}, nil
+}
+
 func (f *FakeECR) DescribeRepositories(ctx context.Context, input *ecr.DescribeRepositoriesInput, opts ...func(*ecr.Options)) (*ecr.DescribeRepositoriesOutput, error) {
 	var repos []types.Repository
 	{
