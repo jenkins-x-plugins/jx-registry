@@ -69,6 +69,7 @@ type Options struct {
 	CreateECRLifeCyclePolicy  bool   `env:"CREATE_ECR_LIFECYCLE_POLICY,default=true"`
 	CreateECRRepositoryPolicy bool   `env:"CREATE_ECR_REPOSITORY_POLICY,default=false"`
 	ECRClient                 ECRClient
+	CacheSuffix               string `env:"CACHE_SUFFIX"` // CacheSuffix is declared here to get handling of env to work
 }
 
 func (o *Options) AddFlags(cmd *cobra.Command) {
@@ -236,7 +237,7 @@ func (o *Options) EnsureLifecyclePolicy(repoName string) error {
 
 func (o *Options) EnsureRepositoryPolicy(repoName string) error {
 	if !o.CreateECRRepositoryPolicy {
-		return nil 
+		return nil
 	}
 	client := o.ECRClient
 	ctx := o.GetContext()
