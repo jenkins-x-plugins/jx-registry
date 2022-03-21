@@ -230,7 +230,7 @@ func (o *Options) EnsureLifecyclePolicy(repoName string) error {
 			return fmt.Errorf("Failed to put lifecycle policy '%s' for the ECR repository %s due to: %s",
 				o.ECRLifecyclePolicy, repoName, err)
 		}
-		log.Logger().Infof("Put ECR repository lifecycle policy: %s", termcolor.ColorInfo(*(*putLifecyclePolicyOutput).LifecyclePolicyText))
+		log.Logger().Infof("Put ECR repository lifecycle policy: %s", termcolor.ColorInfo(*putLifecyclePolicyOutput.LifecyclePolicyText))
 	}
 	return o.EnsureRepositoryPolicy(repoName)
 }
@@ -278,6 +278,6 @@ func (o *Options) EnsureRepositoryPolicy(repoName string) error {
 		return fmt.Errorf("Failed to set repository policy '%s' for the ECR repository %s due to: %s",
 			o.ECRRepositoryPolicy, repoName, err)
 	}
-	log.Logger().Infof("Put ECR repository repository policy: %s", termcolor.ColorInfo(*(*setRegistryPolicyOutput).PolicyText))
+	log.Logger().Infof("Put ECR repository repository policy: %s", termcolor.ColorInfo(*setRegistryPolicyOutput.PolicyText))
 	return nil
 }
