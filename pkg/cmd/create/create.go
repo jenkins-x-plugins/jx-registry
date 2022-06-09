@@ -42,7 +42,6 @@ type Options struct {
 	options.BaseOptions
 	ecrs.Options
 
-	CacheSuffix   string `env:"CACHE_SUFFIX"`
 	ECRSuffix     string
 	Namespace     string
 	Owner         string

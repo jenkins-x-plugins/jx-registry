@@ -21,7 +21,6 @@ type Options struct {
 
 func (o *Options) GetConfig() (*aws.Config, error) {
 	if o.Config != nil {
-		log.Logger().Infof("aready has AWS config")
 		return o.Config, nil
 	}
 	if o.Context == nil {

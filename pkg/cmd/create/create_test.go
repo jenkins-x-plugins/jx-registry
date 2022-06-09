@@ -10,11 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	// generateTestOutput enable to regenerate the expected output
-	generateTestOutput = false
-)
-
 func TestCreateForNonEKS(t *testing.T) {
 	_, o := create.NewCmdCreate()
 
