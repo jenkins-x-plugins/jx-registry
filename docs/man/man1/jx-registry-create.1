@@ -24,7 +24,7 @@ Lazy create a container registry for ECR as well as putting a lifecycle policy i
     The app name to use. Defaults to $APP\_NAME
 
 .PP
-\fB\-\-aws\-profile\fP="cloudbees\-pse"
+\fB\-\-aws\-profile\fP=""
     The AWS profile to use. Defaults to $AWS\_PROFILE
 
 .PP
@@ -44,12 +44,20 @@ Lazy create a container registry for ECR as well as putting a lifecycle policy i
     Should ECR Lifecycle Policy be created. Can be specified in $CREATE\_ECR\_LIFECYCLE\_POLICY.
 
 .PP
+\fB\-\-create\-ecr\-repository\-policy\fP[=false]
+    Should ECR Repository Policy be created. Can be specified in $CREATE\_ECR\_REPOSITORY\_POLICY.
+
+.PP
 \fB\-\-ecr\-lifecycle\-policy\fP=""
     ECR lifecycle policies to apply to the repository. Can be specified in $ECR\_LIFECYCLE\_POLICY.
 
 .PP
 \fB\-\-ecr\-registry\-suffix\fP=".amazonaws.com"
     The registry suffix to check if we are using ECR
+
+.PP
+\fB\-\-ecr\-repository\-policy\fP=""
+    ECR repository policies to apply to the repository. Can be specified in $ECR\_REPOSITORY\_POLICY.
 
 .PP
 \fB\-h\fP, \fB\-\-help\fP[=false]
