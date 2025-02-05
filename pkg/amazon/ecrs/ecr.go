@@ -2,6 +2,7 @@ package ecrs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 	"github.com/jenkins-x/jx-helpers/v3/pkg/options"
 	"github.com/jenkins-x/jx-helpers/v3/pkg/termcolor"
 	"github.com/jenkins-x/jx-logging/v3/pkg/log"
-	"github.com/pkg/errors"
+
 	"github.com/sethvargo/go-envconfig"
 	"github.com/spf13/cobra"
 )
@@ -88,10 +89,10 @@ func (o *Options) AddFlags(cmd *cobra.Command) {
 func (o *Options) Validate() error {
 	cfg, err := o.GetConfig()
 	if err != nil {
-		return errors.Wrapf(err, "failed to create AWS config")
+		return fmt.Errorf("failed to create AWS config: %w", err)
 	}
 	if cfg == nil {
-		return errors.Errorf("no AWS config")
+		return fmt.Errorf("no AWS config")
 	}
 	return nil
 }
@@ -114,13 +115,13 @@ func (o *Options) LazyCreateRegistry(appName string) error {
 	ctx := o.GetContext()
 	cfg, err := o.GetConfig()
 	if err != nil {
-		return errors.Wrapf(err, "failed to create the AWS configuration")
+		return fmt.Errorf("failed to create the AWS configuration: %w", err)
 	}
 	if cfg == nil {
-		return errors.Errorf("no AWS configuration could be found")
+		return fmt.Errorf("no AWS configuration could be found")
 	}
 	if len(appName) <= 2 {
-		return errors.Errorf("missing valid app name: '%s'", appName)
+		return fmt.Errorf("missing valid app name: '%s'", appName)
 	}
 
 	region := o.AWSRegion
@@ -155,7 +156,7 @@ func (o *Options) LazyCreateRegistry(appName string) error {
 	if err != nil {
 		var notFoundErr *types.RepositoryNotFoundException
 		if !errors.As(err, &notFoundErr) {
-			return errors.Wrapf(err, "failed to check for repository with registry ID %s", o.RegistryID)
+			return fmt.Errorf("failed to check for repository with registry ID %s: %w", o.RegistryID, err)
 		}
 	}
 	if result != nil {

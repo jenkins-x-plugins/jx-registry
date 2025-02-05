@@ -2,11 +2,12 @@ package amazon
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/jenkins-x/jx-logging/v3/pkg/log"
-	"github.com/pkg/errors"
+
 	"github.com/sethvargo/go-envconfig"
 	"github.com/spf13/cobra"
 )
@@ -35,7 +36,7 @@ func (o *Options) GetConfig() (*aws.Config, error) {
 	cfg, err := config.LoadDefaultConfig(o.Context, ops...)
 	o.Config = &cfg
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create AWS config")
+		return nil, fmt.Errorf("failed to create AWS config: %w", err)
 	}
 	return o.Config, nil
 }

@@ -18,7 +18,7 @@ import (
 	"github.com/jenkins-x/jx-helpers/v3/pkg/options"
 	"github.com/jenkins-x/jx-helpers/v3/pkg/termcolor"
 	"github.com/jenkins-x/jx-logging/v3/pkg/log"
-	"github.com/pkg/errors"
+
 	"github.com/spf13/cobra"
 )
 
@@ -90,15 +90,15 @@ func (o *Options) Validate() error {
 		var err error
 		o.JXClient, o.Namespace, err = jxclient.LazyCreateJXClientAndNamespace(o.JXClient, o.Namespace)
 		if err != nil {
-			return errors.Wrapf(err, "failed to create jxClient")
+			return fmt.Errorf("failed to create jxClient: %w", err)
 		}
 		o.Requirements, err = variablefinders.FindRequirements(o.GitClient, o.JXClient, o.Namespace, "", o.Owner, o.Repository)
 		if err != nil {
-			return errors.Wrapf(err, "failed to load requirements from dev environment")
+			return fmt.Errorf("failed to load requirements from dev environment: %w", err)
 		}
 	}
 	if o.Requirements == nil {
-		return errors.Errorf("no requirements found for dev environment")
+		return fmt.Errorf("no requirements found for dev environment")
 	}
 
 	if o.AWSRegion == "" {
@@ -113,7 +113,7 @@ func (o *Options) Validate() error {
 func (o *Options) Run() error {
 	err := o.Validate()
 	if err != nil {
-		return errors.Wrapf(err, "failed to validate options")
+		return fmt.Errorf("failed to validate options: %w", err)
 	}
 	if o.Requirements.Cluster.Provider != "eks" {
 		log.Logger().Infof("no ECR code necessary as using provider %s", o.Requirements.Cluster.Provider)
@@ -134,7 +134,7 @@ func (o *Options) Run() error {
 	for _, image := range images {
 		err = o.Options.LazyCreateRegistry(image)
 		if err != nil {
-			return errors.Wrapf(err, "failed to lazy create the ECR registry for %s", image)
+			return fmt.Errorf("failed to lazy create the ECR registry for %s: %w", image, err)
 		}
 	}
 	return nil

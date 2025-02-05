@@ -2,12 +2,12 @@ package fakeecr
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/ecr"
 	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	"github.com/aws/smithy-go/middleware"
-	"github.com/pkg/errors"
 )
 
 // FakeECR a fake ECR implementation for testing
@@ -66,11 +66,11 @@ func (f *FakeECR) DescribeRepositories(ctx context.Context, input *ecr.DescribeR
 
 func (f *FakeECR) CreateRepository(ctx context.Context, params *ecr.CreateRepositoryInput, opts ...func(*ecr.Options)) (*ecr.CreateRepositoryOutput, error) {
 	if params.RepositoryName == nil {
-		return nil, errors.Errorf("missing params.RepositoryName")
+		return nil, fmt.Errorf("missing params.RepositoryName")
 	}
 	name := *params.RepositoryName
 	if f.Repositories[name] != nil {
-		return nil, errors.Errorf("name %s already exists", name)
+		return nil, fmt.Errorf("name %s already exists", name)
 	}
 
 	repo := f.createRepo(name)
