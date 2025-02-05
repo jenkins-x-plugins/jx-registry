@@ -22,7 +22,10 @@ spec:
         - name: next-version
           resources: {}
         - name: jx-variables
-          resources: {}
+          resources:
+            requests:
+              cpu: 1400m
+              memory: 1400Mi
         - name: release-binary
           resources: {}
         - image: uses:jenkins-x/jx3-pipeline-catalog/tasks/build-scan-push/build-scan-push.yaml@versionStream
