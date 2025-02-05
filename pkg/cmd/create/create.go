@@ -61,7 +61,7 @@ func NewCmdCreate() (*cobra.Command, *Options) {
 		Short:   "Lazy create a container registry for ECR",
 		Long:    cmdLong,
 		Example: fmt.Sprintf(cmdExample, rootcmd.BinaryName),
-		Run: func(cmd *cobra.Command, args []string) {
+		Run: func(_ *cobra.Command, _ []string) {
 			err := o.Run()
 			helper.CheckErr(err)
 		},

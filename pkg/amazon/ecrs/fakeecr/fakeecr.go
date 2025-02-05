@@ -16,11 +16,11 @@ type FakeECR struct {
 	Repositories map[string]*types.Repository
 }
 
-func (f *FakeECR) GetLifecyclePolicy(ctx context.Context, params *ecr.GetLifecyclePolicyInput, optFns ...func(*ecr.Options)) (*ecr.GetLifecyclePolicyOutput, error) {
+func (f *FakeECR) GetLifecyclePolicy(_ context.Context, _ *ecr.GetLifecyclePolicyInput, _ ...func(*ecr.Options)) (*ecr.GetLifecyclePolicyOutput, error) {
 	return nil, &types.LifecyclePolicyNotFoundException{}
 }
 
-func (f *FakeECR) PutLifecyclePolicy(ctx context.Context, params *ecr.PutLifecyclePolicyInput, optFns ...func(*ecr.Options)) (*ecr.PutLifecyclePolicyOutput, error) {
+func (f *FakeECR) PutLifecyclePolicy(_ context.Context, params *ecr.PutLifecyclePolicyInput, _ ...func(*ecr.Options)) (*ecr.PutLifecyclePolicyOutput, error) {
 	repo := f.createRepo(*params.RepositoryName)
 	text := "default"
 	return &ecr.PutLifecyclePolicyOutput{
@@ -31,11 +31,11 @@ func (f *FakeECR) PutLifecyclePolicy(ctx context.Context, params *ecr.PutLifecyc
 	}, nil
 }
 
-func (f *FakeECR) GetRepositoryPolicy(ctx context.Context, params *ecr.GetRepositoryPolicyInput, optFns ...func(*ecr.Options)) (*ecr.GetRepositoryPolicyOutput, error) {
+func (f *FakeECR) GetRepositoryPolicy(_ context.Context, _ *ecr.GetRepositoryPolicyInput, _ ...func(*ecr.Options)) (*ecr.GetRepositoryPolicyOutput, error) {
 	return nil, &types.RepositoryPolicyNotFoundException{}
 }
 
-func (f *FakeECR) SetRepositoryPolicy(ctx context.Context, params *ecr.SetRepositoryPolicyInput, optFns ...func(*ecr.Options)) (*ecr.SetRepositoryPolicyOutput, error) {
+func (f *FakeECR) SetRepositoryPolicy(_ context.Context, params *ecr.SetRepositoryPolicyInput, _ ...func(*ecr.Options)) (*ecr.SetRepositoryPolicyOutput, error) {
 	repo := f.createRepo(*params.RepositoryName)
 	text := "default"
 	return &ecr.SetRepositoryPolicyOutput{
@@ -46,10 +46,8 @@ func (f *FakeECR) SetRepositoryPolicy(ctx context.Context, params *ecr.SetReposi
 	}, nil
 }
 
-func (f *FakeECR) DescribeRepositories(ctx context.Context, input *ecr.DescribeRepositoriesInput, opts ...func(*ecr.Options)) (*ecr.DescribeRepositoriesOutput, error) {
+func (f *FakeECR) DescribeRepositories(_ context.Context, input *ecr.DescribeRepositoriesInput, _ ...func(*ecr.Options)) (*ecr.DescribeRepositoriesOutput, error) {
 	var repos []types.Repository
-	{
-	}
 	if input != nil && f.Repositories != nil {
 		for _, name := range input.RepositoryNames {
 			r := f.Repositories[name]
@@ -64,7 +62,7 @@ func (f *FakeECR) DescribeRepositories(ctx context.Context, input *ecr.DescribeR
 	}, nil
 }
 
-func (f *FakeECR) CreateRepository(ctx context.Context, params *ecr.CreateRepositoryInput, opts ...func(*ecr.Options)) (*ecr.CreateRepositoryOutput, error) {
+func (f *FakeECR) CreateRepository(_ context.Context, params *ecr.CreateRepositoryInput, _ ...func(*ecr.Options)) (*ecr.CreateRepositoryOutput, error) {
 	if params.RepositoryName == nil {
 		return nil, fmt.Errorf("missing params.RepositoryName")
 	}
