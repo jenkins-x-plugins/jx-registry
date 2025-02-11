@@ -1,4 +1,4 @@
-FROM ghcr.io/jenkins-x/jx-boot:3.1.252
+FROM alpine/git:v2.47.1
 
 ENTRYPOINT ["/run.sh"]
 
