@@ -21,10 +21,7 @@ spec:
           name: ""
           resources: {}
         - name: jx-variables
-          resources:
-            requests:
-              cpu: 1400m
-              memory: 1400Mi
+          resources: {}
         - name: build-make-linux
           resources: {}
         - name: build-make-test
