@@ -8,7 +8,7 @@ require (
 	github.com/cpuguy83/go-md2man v1.0.10
 	github.com/jenkins-x-plugins/jx-gitops v0.24.2
 	github.com/jenkins-x/jx-api/v4 v4.8.1
-	github.com/jenkins-x/jx-helpers/v3 v3.9.7
+	github.com/jenkins-x/jx-helpers/v3 v3.9.8
 	github.com/jenkins-x/jx-logging/v3 v3.1.0
 	github.com/sethvargo/go-envconfig v1.1.0
 	github.com/spf13/cobra v1.9.1
