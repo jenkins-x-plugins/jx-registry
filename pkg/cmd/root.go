@@ -12,7 +12,9 @@ import (
 // Main creates the new command
 func Main() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   rootcmd.TopLevelCommand,
+		Annotations: map[string]string{
+			cobra.CommandDisplayNameAnnotation: rootcmd.TopLevelCommand,
+		},
 		Short: "commands for working with container registries",
 		Run: func(cmd *cobra.Command, _ []string) {
 			err := cmd.Help()
